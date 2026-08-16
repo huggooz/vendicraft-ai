@@ -5,6 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
+ * VendAI design system — dark premium SaaS.
+ * Base: deep ink navy. Accent: signal emerald. Secondary accent: electric cyan.
+ */
+
+/*
  * Design system definition.
  *
  * The @theme inline block maps CSS custom properties to Tailwind utility
