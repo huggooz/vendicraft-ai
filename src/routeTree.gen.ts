@@ -12,10 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedBibliotecaRouteImport } from './routes/_authenticated/biblioteca'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedCrmRouteImport } from './routes/_authenticated/crm'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFollowUpsRouteImport } from './routes/_authenticated/follow-ups'
 import { Route as AuthenticatedGerarRespostaRouteImport } from './routes/_authenticated/gerar-resposta'
 import { Route as AuthenticatedIaVendasRouteImport } from './routes/_authenticated/ia-vendas'
+import { Route as AuthenticatedOfertasRouteImport } from './routes/_authenticated/ofertas'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedProdutosRouteImport } from './routes/_authenticated/produtos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,9 +37,30 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedBibliotecaRoute = AuthenticatedBibliotecaRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCrmRoute = AuthenticatedCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFollowUpsRoute = AuthenticatedFollowUpsRouteImport.update({
+  id: '/follow-ups',
+  path: '/follow-ups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGerarRespostaRoute =
@@ -47,64 +74,110 @@ const AuthenticatedIaVendasRoute = AuthenticatedIaVendasRouteImport.update({
   path: '/ia-vendas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOfertasRoute = AuthenticatedOfertasRouteImport.update({
+  id: '/ofertas',
+  path: '/ofertas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProdutosRoute = AuthenticatedProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/crm': typeof AuthenticatedCrmRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/gerar-resposta': typeof AuthenticatedGerarRespostaRoute
   '/ia-vendas': typeof AuthenticatedIaVendasRoute
+  '/ofertas': typeof AuthenticatedOfertasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/produtos': typeof AuthenticatedProdutosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/crm': typeof AuthenticatedCrmRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/gerar-resposta': typeof AuthenticatedGerarRespostaRoute
   '/ia-vendas': typeof AuthenticatedIaVendasRoute
+  '/ofertas': typeof AuthenticatedOfertasRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/produtos': typeof AuthenticatedProdutosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/biblioteca': typeof AuthenticatedBibliotecaRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/crm': typeof AuthenticatedCrmRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/follow-ups': typeof AuthenticatedFollowUpsRoute
   '/_authenticated/gerar-resposta': typeof AuthenticatedGerarRespostaRoute
   '/_authenticated/ia-vendas': typeof AuthenticatedIaVendasRoute
+  '/_authenticated/ofertas': typeof AuthenticatedOfertasRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/produtos': typeof AuthenticatedProdutosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/biblioteca'
+    | '/configuracoes'
+    | '/crm'
     | '/dashboard'
+    | '/follow-ups'
     | '/gerar-resposta'
     | '/ia-vendas'
+    | '/ofertas'
     | '/onboarding'
+    | '/produtos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/biblioteca'
+    | '/configuracoes'
+    | '/crm'
     | '/dashboard'
+    | '/follow-ups'
     | '/gerar-resposta'
     | '/ia-vendas'
+    | '/ofertas'
     | '/onboarding'
+    | '/produtos'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/biblioteca'
+    | '/_authenticated/configuracoes'
+    | '/_authenticated/crm'
     | '/_authenticated/dashboard'
+    | '/_authenticated/follow-ups'
     | '/_authenticated/gerar-resposta'
     | '/_authenticated/ia-vendas'
+    | '/_authenticated/ofertas'
     | '/_authenticated/onboarding'
+    | '/_authenticated/produtos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,11 +209,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/biblioteca': {
+      id: '/_authenticated/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof AuthenticatedBibliotecaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/crm': {
+      id: '/_authenticated/crm'
+      path: '/crm'
+      fullPath: '/crm'
+      preLoaderRoute: typeof AuthenticatedCrmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/follow-ups': {
+      id: '/_authenticated/follow-ups'
+      path: '/follow-ups'
+      fullPath: '/follow-ups'
+      preLoaderRoute: typeof AuthenticatedFollowUpsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/gerar-resposta': {
@@ -157,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaVendasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ofertas': {
+      id: '/_authenticated/ofertas'
+      path: '/ofertas'
+      fullPath: '/ofertas'
+      preLoaderRoute: typeof AuthenticatedOfertasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -164,21 +272,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/produtos': {
+      id: '/_authenticated/produtos'
+      path: '/produtos'
+      fullPath: '/produtos'
+      preLoaderRoute: typeof AuthenticatedProdutosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBibliotecaRoute: typeof AuthenticatedBibliotecaRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedCrmRoute: typeof AuthenticatedCrmRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFollowUpsRoute: typeof AuthenticatedFollowUpsRoute
   AuthenticatedGerarRespostaRoute: typeof AuthenticatedGerarRespostaRoute
   AuthenticatedIaVendasRoute: typeof AuthenticatedIaVendasRoute
+  AuthenticatedOfertasRoute: typeof AuthenticatedOfertasRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBibliotecaRoute: AuthenticatedBibliotecaRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedCrmRoute: AuthenticatedCrmRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFollowUpsRoute: AuthenticatedFollowUpsRoute,
   AuthenticatedGerarRespostaRoute: AuthenticatedGerarRespostaRoute,
   AuthenticatedIaVendasRoute: AuthenticatedIaVendasRoute,
+  AuthenticatedOfertasRoute: AuthenticatedOfertasRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedProdutosRoute: AuthenticatedProdutosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

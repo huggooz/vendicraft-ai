@@ -57,7 +57,10 @@ function Produtos() {
   }
 
   async function submit() {
-    if (!form.name.trim()) return toast.error("Informe o nome do produto.");
+    if (!form.name.trim()) {
+      toast.error("Informe o nome do produto.");
+      return;
+    }
     const values = {
       name: form.name.trim(),
       description: form.description || null,

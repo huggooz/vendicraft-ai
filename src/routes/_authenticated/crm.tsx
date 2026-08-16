@@ -89,7 +89,10 @@ function Crm() {
       temperature: form.temperature,
       notes: form.notes || null,
     };
-    if (!values.name) return toast.error("Informe o nome do lead.");
+    if (!values.name) {
+      toast.error("Informe o nome do lead.");
+      return;
+    }
     try {
       if (editing) await updateLead.mutateAsync({ id: editing.id, values });
       else await createLead.mutateAsync(values);
