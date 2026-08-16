@@ -29,6 +29,32 @@ const offerSchema = z.object({
   deadline: z.string().optional().default(""),
 });
 
+// Valida a estrutura da resposta JSON da IA antes de persistir/retornar ao frontend.
+// extractJson() só garante que o texto é JSON parseável, não que tem o formato certo --
+// isso evita que um campo ausente/undefined siga silenciosamente até o Supabase ou a UI.
+const conversationAnalysisSchema = z.object({
+  temperature: z.string(),
+  buying_intent: z.coerce.number(),
+  funnel_stage: z.string(),
+  objections: z.array(z.string()),
+  customer_need: z.string(),
+  next_action: z.string(),
+  suggested_reply: z.string(),
+  summary: z.string(),
+});
+
+const offerResultSchema = z.object({
+  offer_name: z.string(),
+  headline: z.string(),
+  description: z.string(),
+  benefits: z.array(z.string()),
+  cta: z.string(),
+  whatsapp_message: z.string(),
+  instagram_caption: z.string(),
+  aggressive_variant: z.string(),
+  premium_variant: z.string(),
+});
+
 export const analyzeConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => analyzeSchema.parse(data))
@@ -57,9 +83,14 @@ Analise a conversa enviada e responda APENAS com um JSON válido neste formato:
 }`,
       },
       { role: "user", content: `CONVERSA COM O CLIENTE:\n${data.conversation}` },
-    ]);
+    ], "gemini");
 
-    const analysis = extractJson<ConversationAnalysis>(raw);
+    const parsed = extractJson<ConversationAnalysis>(raw);
+    const parseResult = conversationAnalysisSchema.safeParse(parsed);
+    if (!parseResult.success) {
+      throw new Error("A IA respondeu em um formato inesperado. Tente novamente.");
+    }
+    const analysis = parseResult.data as ConversationAnalysis;
     analysis.buying_intent = Math.max(0, Math.min(100, Math.round(Number(analysis.buying_intent) || 0)));
     if (!["quente", "morno", "frio"].includes(analysis.temperature)) analysis.temperature = "morno";
     analysis.objections = Array.isArray(analysis.objections) ? analysis.objections.slice(0, 6) : [];
@@ -122,8 +153,10 @@ Escreva UMA mensagem pronta para o vendedor enviar ao cliente. Responda somente 
 Mensagem do cliente: ${data.customerMessage}
 Informações adicionais do vendedor: ${data.extraContext || "nenhuma"}`,
         },
-      ])
+      ], "gemini")
     ).trim();
+
+    if (!reply) throw new Error("A IA não retornou uma resposta. Tente novamente.");
 
     await logGeneration(supabase, userId, "reply", data, { reply });
     return { reply };
@@ -155,8 +188,10 @@ Data do último contato: ${data.lastContactDate || "não informada"}
 Motivo do contato: ${data.reason || "não informado"}
 Objetivo: ${data.goal || "reengajar e avançar a venda"}`,
         },
-      ])
+      ], "gemini")
     ).trim();
+
+    if (!message) throw new Error("A IA não retornou uma resposta. Tente novamente.");
 
     await logGeneration(supabase, userId, "follow_up", data, { message });
     return { message };
@@ -199,12 +234,17 @@ Público-alvo: ${data.audience || "não informado"}
 Objetivo da campanha: ${data.campaignGoal || "não informado"}
 Prazo da oferta: ${data.deadline || "não informado"}`,
       },
-    ]);
+    ], "gemini");
 
-    const offer = extractJson<OfferResult>(raw);
+    const parsedOffer = extractJson<OfferResult>(raw);
+    const offerParseResult = offerResultSchema.safeParse(parsedOffer);
+    if (!offerParseResult.success) {
+      throw new Error("A IA respondeu em um formato inesperado. Tente novamente.");
+    }
+    const offer = offerParseResult.data as OfferResult;
     offer.benefits = Array.isArray(offer.benefits) ? offer.benefits : [];
 
-    await supabase.from("offers").insert({
+    const { error: offerInsertError } = await supabase.from("offers").insert({
       user_id: userId,
       product_name: data.productName,
       current_price: data.currentPrice ? Number(data.currentPrice.replace(",", ".")) || null : null,
@@ -214,6 +254,8 @@ Prazo da oferta: ${data.deadline || "não informado"}`,
       deadline: data.deadline || null,
       result: offer as never,
     });
+    if (offerInsertError) throw new Error("Não foi possível salvar a oferta.");
+
     await logGeneration(supabase, userId, "offer", data, offer);
 
     return { offer };
