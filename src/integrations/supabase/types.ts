@@ -14,7 +14,470 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_generations: {
+        Row: {
+          created_at: string
+          id: string
+          input: Json | null
+          kind: string
+          output: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          input?: Json | null
+          kind: string
+          output?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          input?: Json | null
+          kind?: string
+          output?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      businesses: {
+        Row: {
+          created_at: string
+          customer_needs: string | null
+          description: string | null
+          id: string
+          name: string
+          price_range: string | null
+          segment: string | null
+          target_audience: string | null
+          tone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_needs?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          price_range?: string | null
+          segment?: string | null
+          target_audience?: string | null
+          tone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_needs?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          price_range?: string | null
+          segment?: string | null
+          target_audience?: string | null
+          tone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          analysis: Json | null
+          created_at: string
+          id: string
+          lead_id: string | null
+          raw_text: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis?: Json | null
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          raw_text: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis?: Json | null
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          raw_text?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follow_ups: {
+        Row: {
+          context: string | null
+          created_at: string
+          customer_name: string
+          goal: string | null
+          id: string
+          last_contact_date: string | null
+          lead_id: string | null
+          message: string | null
+          reason: string | null
+          status: string
+          style: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          customer_name: string
+          goal?: string | null
+          id?: string
+          last_contact_date?: string | null
+          lead_id?: string | null
+          message?: string | null
+          reason?: string | null
+          status?: string
+          style?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          customer_name?: string
+          goal?: string | null
+          id?: string
+          last_contact_date?: string | null
+          lead_id?: string | null
+          message?: string | null
+          reason?: string | null
+          status?: string
+          style?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_ups_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_interactions: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          kind: string
+          lead_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          buying_intent: number | null
+          company: string | null
+          created_at: string
+          email: string | null
+          id: string
+          last_contact_at: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          potential_value: number | null
+          product_interest: string | null
+          status: string
+          temperature: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buying_intent?: number | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contact_at?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          potential_value?: number | null
+          product_interest?: string | null
+          status?: string
+          temperature?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buying_intent?: number | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_contact_at?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          potential_value?: number | null
+          product_interest?: string | null
+          status?: string
+          temperature?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          campaign_goal: string | null
+          created_at: string
+          current_price: number | null
+          deadline: string | null
+          discount: string | null
+          id: string
+          product_id: string | null
+          product_name: string | null
+          result: Json | null
+          target_audience: string | null
+          user_id: string
+        }
+        Insert: {
+          campaign_goal?: string | null
+          created_at?: string
+          current_price?: number | null
+          deadline?: string | null
+          discount?: string | null
+          id?: string
+          product_id?: string | null
+          product_name?: string | null
+          result?: Json | null
+          target_audience?: string | null
+          user_id: string
+        }
+        Update: {
+          campaign_goal?: string | null
+          created_at?: string
+          current_price?: number | null
+          deadline?: string | null
+          discount?: string | null
+          id?: string
+          product_id?: string | null
+          product_name?: string | null
+          result?: Json | null
+          target_audience?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          benefits: string | null
+          commercial_notes: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          price: number | null
+          target_audience: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          benefits?: string | null
+          commercial_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          price?: number | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          benefits?: string | null
+          commercial_notes?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price?: number | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          default_tone: string
+          email: string | null
+          full_name: string
+          id: string
+          language: string
+          notifications_enabled: boolean
+          onboarding_completed: boolean
+          plan: string
+          subscription_expires_at: string | null
+          subscription_id: string | null
+          subscription_status: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          default_tone?: string
+          email?: string | null
+          full_name?: string
+          id: string
+          language?: string
+          notifications_enabled?: boolean
+          onboarding_completed?: boolean
+          plan?: string
+          subscription_expires_at?: string | null
+          subscription_id?: string | null
+          subscription_status?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          default_tone?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          language?: string
+          notifications_enabled?: boolean
+          onboarding_completed?: boolean
+          plan?: string
+          subscription_expires_at?: string | null
+          subscription_id?: string | null
+          subscription_status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_messages: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_favorite: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          plan: string
+          provider: string | null
+          provider_subscription_id: string | null
+          raw_payload: Json | null
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan?: string
+          provider?: string | null
+          provider_subscription_id?: string | null
+          raw_payload?: Json | null
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan?: string
+          provider?: string | null
+          provider_subscription_id?: string | null
+          raw_payload?: Json | null
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
