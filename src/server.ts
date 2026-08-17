@@ -2,6 +2,18 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { handleKirvanoWebhook } from "./lib/billing/kirvano-webhook.server";
+import { supabaseAdmin } from "./integrations/supabase/client.server";
+
+// Fase 3.4: intercepted before the SSR/router handler because this
+// TanStack Start version (1.168) has no file-based "server routes" API
+// (verified: no createServerFileRoute/server.handlers export exists in
+// @tanstack/react-router or @tanstack/react-start at this version) --
+// createServerFn's RPC transport also isn't suitable, since src/start.ts
+// applies CSRF middleware to every serverFn request, which an external
+// webhook call cannot satisfy. This raw fetch-level entry point is the one
+// place guaranteed to see every incoming request before routing.
+const KIRVANO_WEBHOOK_PATH = "/api/webhooks/kirvano";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -47,6 +59,11 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      if (url.pathname === KIRVANO_WEBHOOK_PATH) {
+        return await handleKirvanoWebhook(request, { supabase: supabaseAdmin });
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

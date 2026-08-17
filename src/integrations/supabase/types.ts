@@ -41,6 +41,54 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_events: {
+        Row: {
+          checkout_id: string | null
+          customer_email: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          idempotency_key: string | null
+          processed_at: string | null
+          processing_status: string
+          provider: string
+          raw_payload: Json
+          received_at: string
+          sale_id: string | null
+          status: string | null
+        }
+        Insert: {
+          checkout_id?: string | null
+          customer_email?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          idempotency_key?: string | null
+          processed_at?: string | null
+          processing_status?: string
+          provider: string
+          raw_payload: Json
+          received_at?: string
+          sale_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          checkout_id?: string | null
+          customer_email?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          idempotency_key?: string | null
+          processed_at?: string | null
+          processing_status?: string
+          provider?: string
+          raw_payload?: Json
+          received_at?: string
+          sale_id?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       businesses: {
         Row: {
           created_at: string
@@ -441,39 +489,60 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          amount: number | null
+          billing_type: string
+          checkout_id: string | null
           created_at: string
+          currency: string
           expires_at: string | null
           id: string
+          next_charge_at: string | null
           plan: string
           provider: string | null
           provider_subscription_id: string | null
           raw_payload: Json | null
+          sale_id: string | null
           started_at: string
           status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
+          amount?: number | null
+          billing_type?: string
+          checkout_id?: string | null
           created_at?: string
+          currency?: string
           expires_at?: string | null
           id?: string
+          next_charge_at?: string | null
           plan?: string
           provider?: string | null
           provider_subscription_id?: string | null
           raw_payload?: Json | null
+          sale_id?: string | null
           started_at?: string
           status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
+          amount?: number | null
+          billing_type?: string
+          checkout_id?: string | null
           created_at?: string
+          currency?: string
           expires_at?: string | null
           id?: string
+          next_charge_at?: string | null
           plan?: string
           provider?: string | null
           provider_subscription_id?: string | null
           raw_payload?: Json | null
+          sale_id?: string | null
           started_at?: string
           status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
