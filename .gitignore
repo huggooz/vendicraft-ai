@@ -35,6 +35,10 @@ dist-ssr
 .env
 .env.local
 .env.*.local
-.claude-flow/data/
-.claude-flow/logs/
-.claude-flow/sessions/
+.claude/
+.claude-flow/
+.swarm/
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/

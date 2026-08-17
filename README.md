@@ -1,1124 +1,160 @@
-# Spark Sales AI
+# VendAI
 
-VENDai — SaaS de Inteligência Artificial para Vendas no WhatsApp
+SaaS full-stack de inteligência artificial para vendedores que atendem clientes por WhatsApp e Instagram: o vendedor cola o texto da conversa na aplicação e recebe análise comercial, resposta pronta e organização do lead em um CRM. Não há integração automática com WhatsApp/Instagram — a entrada é manual (colar a conversa).
 
-Quero que você construa um SaaS web completo chamado VendAI.
+## Sobre o projeto
 
-1. OBJETIVO DO PRODUTO
+Vendedores autônomos, MEIs e pequenos negócios vendem majoritariamente por conversa direta (WhatsApp, Instagram) e perdem oportunidades por não saber responder rápido, não fazer follow-up e não ter os leads organizados em nenhum lugar.
 
-O VendAI é uma plataforma de inteligência artificial voltada para MEIs, autônomos, pequenos negócios, prestadores de serviços e vendedores que utilizam WhatsApp e Instagram para vender.
+O VendAI resolve isso permitindo que o vendedor cole uma conversa e receba, em segundos: classificação do lead (quente/morno/frio), intenção de compra, objeções identificadas, próxima ação recomendada e uma resposta pronta para enviar — tudo calibrado com os dados reais do negócio (produtos, preços, público-alvo, tom de voz) cadastrados no onboarding, nunca inventados pela IA.
 
-A proposta principal é:
+## Principais funcionalidades
 
-Transformar conversas com clientes em oportunidades de venda.
+- **IA de Vendas** — cola-se uma conversa e a IA devolve temperatura do lead, intenção de compra (0–100), estágio do funil, objeções, necessidade do cliente e uma resposta sugerida.
+- **Gerador de respostas** — mensagens prontas para 8 objetivos distintos (primeiro contato, orçamento, objeção, follow-up, pós-venda, indicação, etc.), com variações (mais curta, mais persuasiva, mais profissional).
+- **Follow-ups** — geração de mensagens de retomada de contato em 4 estilos diferentes.
+- **Gerador de ofertas** — headline, descrição, benefícios, CTA e variações de copy (WhatsApp/Instagram) a partir de produto, preço, desconto e público.
+- **CRM Kanban** — pipeline de leads (novo → conversando → proposta → negociação → ganho/perdido), com valor potencial e temperatura.
+- **Dashboard** — métricas de leads, oportunidades, vendas e conversão, com gráficos de evolução e distribuição por temperatura.
+- **Cadastro de produtos, biblioteca de mensagens e configurações de negócio/tom de voz**, usados como contexto real para todas as gerações de IA.
+- **Planos e limites de uso** (Free/Pro/Anual) aplicados no servidor, não apenas na interface.
 
-O usuário poderá cadastrar seu negócio, seus produtos/serviços e utilizar IA para:
+## Tecnologias
 
-analisar conversas com clientes;
+- **TypeScript** (modo `strict`)
+- **React 19** + **TanStack Start** (SSR, roteamento file-based, server functions) + **TanStack Router** + **TanStack Query**
+- **Vite** + **Nitro** (build multi-target — ver [Deploy](#deploy))
+- **Tailwind CSS** + **shadcn/ui** (Radix primitives)
+- **Supabase** (Auth + PostgreSQL + Row Level Security)
+- **Zod** para validação de entrada em toda fronteira do sistema (server functions e webhook)
+- **Google Gemini** como provedor de IA
+- **Vitest** para testes automatizados
 
-identificar intenção de compra;
+## Arquitetura
 
-classificar leads;
-
-gerar respostas comerciais;
-
-criar follow-ups;
-
-criar ofertas;
-
-melhorar mensagens;
-
-organizar leads em um CRM;
-
-acompanhar oportunidades e vendas.
-
-O produto precisa parecer um SaaS comercial real, moderno e profissional, e não apenas uma demonstração de IA.
-
-2. STACK
-
-Utilize preferencialmente:
-
-React
-
-TypeScript
-
-Tailwind CSS
-
-shadcn/ui
-
+```
+Browser (React + TanStack Router)
+        │
+        ▼
+TanStack Start (SSR + Server Functions, middleware de auth/CSRF)
+        │
+        ├── AI Gateway (server-only) ──► Gemini API
+        │      valida contexto do negócio, limites de plano
+        │      e formato da resposta (Zod) antes de persistir
+        │
+        └── Webhook /api/webhooks/kirvano (server-only, fora do router)
+        │
+        ▼
 Supabase
+   ├── Auth (JWT)
+   ├── PostgreSQL (RLS em todas as tabelas de usuário)
+   ├── subscriptions / billing_events (billing)
+   └── leads, products, conversations, ai_generations, offers, follow_ups...
+```
 
-PostgreSQL
+O servidor sempre acessa o Supabase de duas formas distintas, nunca misturadas:
+- **Client autenticado** (`auth-middleware.ts`): recebe o JWT do usuário, roda com RLS ativo — usado em toda leitura/escrita de dados do usuário.
+- **Client admin** (`client.server.ts`, service role): usado apenas dentro de módulos `*.server.ts` para operações que precisam ignorar RLS (ex: o webhook de billing, que não tem sessão de usuário).
 
-autenticação do Supabase
+## Segurança
 
-Row Level Security (RLS)
+- **RLS em todas as tabelas de dados do usuário** — cada registro só é acessível por quem o criou; o isolamento não depende do frontend.
+- **`SUPABASE_SERVICE_ROLE_KEY` e `GEMINI_API_KEY` nunca chegam ao bundle do cliente** — vivem apenas em módulos `*.server.ts`, carregados via `process.env` no servidor.
+- **Autenticação por JWT verificado no servidor** (`supabase.auth.getClaims`) antes de qualquer server function rodar, via middleware compartilhado.
+- **CSRF middleware** aplicado a toda chamada de server function (`createCsrfMiddleware`).
+- **Validação de entrada com Zod** em toda fronteira: server functions da IA e payload do webhook Kirvano — nada do corpo da requisição é confiado sem schema.
+- **Idempotência no webhook de billing**: eventos duplicados do Kirvano são detectados por uma chave composta e um índice único no banco (`billing_events`), evitando processar a mesma venda duas vezes.
+- **Limite de uso por plano aplicado no servidor** (`assertWithinLimit`), não apenas escondido na UI.
+- **A IA nunca inventa dado comercial**: preço, desconto e condições vêm exclusivamente do que o usuário cadastrou; quando falta contexto, a IA é instruída a dizer que a informação não está disponível.
 
-integração com modelo de IA através de uma arquitetura segura de backend/edge functions
+## Banco de dados
 
-Nunca exponha API keys ou secrets no frontend.
+PostgreSQL via Supabase, com RLS habilitado. Tabelas principais: `profiles`, `businesses`, `products`, `leads`, `conversations`, `ai_generations`, `follow_ups`, `offers`, `saved_messages`, `subscriptions`, `billing_events`. A migration de billing (`subscriptions`/`billing_events`) inclui constraints, índices, trigger de `updated_at` e um índice parcial único para idempotência de eventos de webhook.
 
-A arquitetura deve ser preparada para posteriormente integrar:
+## Testes
 
-WhatsApp Business API
+17 testes automatizados (Vitest), cobrindo o webhook de billing: validação de payload, autenticação do webhook, idempotência, eventos "record-only" vs. eventos comerciais, resolução de plano e atualização de assinatura/perfil — com um fake do client Supabase (`fake-supabase.ts`), sem depender de um banco real.
 
-Instagram
+```
+npm test
+```
 
-Kirvano
+## Como executar
 
-Stripe ou outros gateways
-
-serviços de e-mail
-
-analytics
-
-Não implemente essas integrações agora se elas não forem necessárias para o MVP. Apenas deixe a arquitetura preparada.
-
-3. IDENTIDADE VISUAL
-
-Nome:
-
-VendAI
-
-Slogan:
-
-"Transforme conversas em vendas."
-
-Estilo visual:
-
-moderno;
-
-premium;
-
-tecnológico;
-
-profissional;
-
-minimalista;
-
-SaaS B2B;
-
-excelente experiência em desktop e mobile.
-
-Evite aparência genérica de template.
-
-Utilize:
-
-bastante espaço em branco;
-
-cards modernos;
-
-bordas discretas;
-
-sombras suaves;
-
-tipografia moderna;
-
-ícones consistentes;
-
-microinterações;
-
-estados de loading;
-
-estados vazios;
-
-feedback visual após ações.
-
-Crie uma identidade visual coerente para todo o produto.
-
-4. LANDING PAGE
-
-Antes do login, crie uma landing page comercial.
-
-Hero:
-
-"Transforme conversas em vendas com IA."
-
-Subheadline:
-
-"Analise seus clientes, responda melhor, faça follow-ups e organize suas oportunidades em um único lugar."
-
-CTA principal:
-
-Começar grátis
-
-CTA secundário:
-
-Ver como funciona
-
-Criar as seguintes seções:
-
-Problema
-
-Mostrar problemas comuns:
-
-clientes esperando resposta;
-
-oportunidades perdidas;
-
-dificuldade para saber o que responder;
-
-falta de acompanhamento;
-
-leads espalhados em conversas.
-
-Como funciona
-
-3 passos:
-
-Cole a conversa.
-
-A IA analisa o cliente.
-
-Receba uma resposta pronta para vender.
-
-Funcionalidades
-
-Mostrar:
-
-IA de vendas;
-
-análise de leads;
-
-respostas inteligentes;
-
-follow-up;
-
-CRM;
-
-geração de ofertas;
-
-dashboard.
-
-Demonstração
-
-Criar uma simulação visual:
-
-Cliente:
-
-"Oi, quanto custa esse serviço?"
-
-VendAI:
-
-"Olá! 😊 O valor é R$ 149,90. Posso te explicar rapidamente como funciona e verificar a disponibilidade para você."
-
-Mostrar classificação:
-
-🔥 Lead quente
-
-Intenção de compra: Alta
-
-Pricing
-
-Criar três planos:
-
-FREE
-R$ 0
-
-PRO
-R$ 39,90/mês
-
-ANUAL
-R$ 197/ano
-
-O pricing deve ser visualmente profissional.
-
-FAQ
-
-Adicionar perguntas como:
-
-Preciso instalar alguma coisa?
-
-O VendAI funciona para qualquer negócio?
-
-Preciso entender de IA?
-
-Posso cancelar?
-
-Meus dados ficam seguros?
-
-CTA final
-
-"Pare de perder vendas por não saber o que responder."
-
-Botão:
-
-Começar agora
-
-5. AUTENTICAÇÃO
-
-Criar:
-
-Login
-
-Cadastro
-
-Recuperação de senha
-
-Logout
-
-Campos:
-
-Cadastro:
-
-Nome
-
-E-mail
-
-Senha
-
-Após o primeiro cadastro, direcionar para um onboarding.
-
-6. ONBOARDING
-
-No primeiro acesso, criar um wizard simples.
-
-Etapa 1
-
-"Vamos conhecer seu negócio."
-
-Campos:
-
-Nome do negócio
-
-Segmento
-
-Descrição do negócio
-
-Etapa 2
-
-"Quem são seus clientes?"
-
-Campos:
-
-Público-alvo
-
-Faixa de preço
-
-Principais necessidades dos clientes
-
-Etapa 3
-
-"O que você vende?"
-
-Permitir cadastrar:
-
-Nome do produto/serviço
-
-Descrição
-
-Preço
-
-Benefícios
-
-Permitir adicionar vários produtos.
-
-Etapa 4
-
-"Como você quer conversar?"
-
-Selecionar:
-
-Profissional
-
-Amigável
-
-Persuasivo
-
-Casual
-
-Premium
-
-Salvar todas essas informações no banco.
-
-Depois direcionar para o Dashboard.
-
-7. DASHBOARD
-
-Criar dashboard principal.
-
-Header:
-
-"Olá, [nome] 👋"
-
-Subtexto:
-
-"Aqui está um resumo das suas oportunidades."
-
-Cards:
-
-Leads
-
-Leads quentes
-
-Oportunidades
-
-Vendas
-
-Taxa de conversão
-
-Exemplo:
-
-LEADS
-48
-
-LEADS QUENTES
-12
-
-OPORTUNIDADES
-R$ 4.280
-
-VENDAS
-R$ 1.890
-
-Criar gráfico de:
-
-Oportunidades ao longo do tempo
-
-Criar gráfico de:
-
-Distribuição dos leads
-
-Quente
-
-Morno
-
-Frio
-
-Criar seção:
-
-Ações rápidas
-
-Botões:
-
-Analisar conversa
-
-Novo lead
-
-Gerar resposta
-
-Criar oferta
-
-8. PRINCIPAL FUNCIONALIDADE — IA DE VENDAS
-
-Criar uma página chamada:
-
-IA de Vendas
-
-Essa deve ser a principal funcionalidade do sistema.
-
-Criar um grande textarea:
-
-"Cole aqui a conversa com seu cliente..."
-
-Exemplo:
-
-Cliente:
-"Oi, vi seu anúncio. Quanto custa?"
-
-Cliente:
-"Tem desconto?"
-
-Cliente:
-"Consigo pagar no cartão?"
-
-Botão:
-
-Analisar conversa
-
-Ao executar:
-
-A IA deve analisar:
-
-Classificação
-
-🔥 Quente
-
-🟡 Morno
-
-🔵 Frio
-
-Intenção de compra
-
-Percentual de 0 a 100.
-
-Momento do funil
-
-Descoberta
-
-Interesse
-
-Consideração
-
-Negociação
-
-Compra
-
-Objeções identificadas
-
-Exemplo:
-
-"Preço"
-
-Necessidade do cliente
-
-Resumo curto.
-
-Próxima ação recomendada
-
-Exemplo:
-
-"Responder a objeção de preço e apresentar o principal benefício antes de oferecer desconto."
-
-Resposta sugerida
-
-Gerar uma resposta pronta para enviar ao cliente.
-
-Adicionar botões:
-
-Copiar
-
-Gerar novamente
-
-Mais curta
-
-Mais persuasiva
-
-Mais profissional
-
-Mais amigável
-
-9. GERADOR DE RESPOSTAS
-
-Criar página:
-
-Gerar resposta
-
-Campos:
-
-Objetivo:
-
-Primeiro contato
-
-Responder orçamento
-
-Responder dúvida
-
-Contornar objeção
-
-Follow-up
-
-Recuperar cliente
-
-Pós-venda
-
-Pedido de indicação
-
-Campo:
-
-"Mensagem do cliente"
-
-Campo:
-
-"Informações adicionais"
-
-Botão:
-
-Gerar resposta
-
-A IA deve utilizar:
-
-informações do negócio;
-
-produtos cadastrados;
-
-público-alvo;
-
-tom de comunicação;
-
-contexto fornecido pelo usuário.
-
-Mostrar resultado em um card.
-
-10. FOLLOW-UP
-
-Criar página:
-
-Follow-ups
-
-Permitir criar um follow-up manualmente.
-
-Campos:
-
-Nome do cliente
-
-Contexto
-
-Data do último contato
-
-Motivo do contato
-
-Objetivo
-
-A IA deve gerar:
-
-Follow-up recomendado
-
-Mensagem pronta.
-
-Criar opções:
-
-Follow-up curto
-
-Follow-up amigável
-
-Follow-up persuasivo
-
-Última tentativa
-
-Criar também uma lista de follow-ups cadastrados.
-
-11. CRM
-
-Criar página:
-
-CRM
-
-Criar pipeline Kanban.
-
-Colunas:
-
-Novo lead
-
-Conversando
-
-Proposta enviada
-
-Negociação
-
-Venda realizada
-
-Perdido
-
-Cada lead deve aparecer em um card contendo:
-
-Nome
-
-Telefone
-
-Valor potencial
-
-Temperatura
-
-Último contato
-
-Status
-
-Permitir:
-
-criar lead;
-
-editar lead;
-
-excluir lead;
-
-mover lead entre etapas;
-
-visualizar detalhes.
-
-12. CADASTRO DE LEADS
-
-Criar formulário:
-
-Nome
-
-Telefone
-
-E-mail
-
-Empresa
-
-Produto de interesse
-
-Valor potencial
-
-Observações
-
-Temperatura
-
-Status
-
-Temperatura:
-
-Quente
-
-Morno
-
-Frio
-
-Permitir que a IA classifique posteriormente o lead.
-
-13. PRODUTOS E SERVIÇOS
-
-Criar página:
-
-Produtos
-
-Permitir:
-
-adicionar;
-
-editar;
-
-excluir;
-
-visualizar.
-
-Campos:
-
-Nome
-
-Descrição
-
-Preço
-
-Benefícios
-
-Público-alvo
-
-Observações comerciais
-
-Esses dados devem ser utilizados pela IA para gerar respostas mais contextualizadas.
-
-14. GERADOR DE OFERTAS
-
-Criar página:
-
-Criar oferta com IA
-
-Campos:
-
-Produto
-
-Preço atual
-
-Desconto
-
-Público-alvo
-
-Objetivo da campanha
-
-Prazo da oferta
-
-A IA deve gerar:
-
-Nome da oferta
-
-Headline
-
-Descrição
-
-Benefícios
-
-CTA
-
-Mensagem para WhatsApp
-
-Legenda para Instagram
-
-Variação mais agressiva
-
-Variação mais premium
-
-15. BIBLIOTECA DE MENSAGENS
-
-Criar página:
-
-Biblioteca
-
-Categorias:
-
-Primeiro contato
-
-Orçamento
-
-Follow-up
-
-Objeções
-
-Fechamento
-
-Pós-venda
-
-Indicação
-
-Recuperação de cliente
-
-Permitir salvar mensagens favoritas.
-
-16. PERFIL E CONFIGURAÇÕES
-
-Criar:
-
-Meu perfil
-
-Nome
-
-E-mail
-
-Foto
-
-Meu negócio
-
-Nome
-
-Segmento
-
-Descrição
-
-Público-alvo
-
-Tom de voz
-
-Preferências
-
-Tom padrão da IA
-
-Idioma
-
-Notificações
-
-17. PLANOS E LIMITES
-
-Criar estrutura de planos:
-
-FREE
-
-10 análises de conversa/mês
-
-20 gerações de resposta/mês
-
-CRM básico
-
-5 produtos
-
-PRO
-
-R$ 39,90/mês
-
-análises ampliadas
-
-gerações ampliadas
-
-CRM completo
-
-produtos ilimitados
-
-follow-ups
-
-gerador de ofertas
-
-biblioteca completa
-
-dashboard completo
-
-ANUAL
-
-R$ 197/ano
-
-Mesmo conjunto de recursos do PRO.
-
-IMPORTANTE:
-
-Não implementar cobrança real agora.
-
-Criar a arquitetura para futuramente integrar a Kirvano e permitir atualizar o plano do usuário via webhook.
-
-Criar um campo no perfil do usuário:
-
-plan
-
-subscription_status
-
-subscription_id
-
-subscription_expires_at
-
-18. BANCO DE DADOS
-
-Utilizar Supabase/PostgreSQL.
-
-Criar tabelas apropriadas, incluindo pelo menos:
-
-profiles
-businesses
-products
-leads
-lead_interactions
-conversations
-ai_generations
-follow_ups
-offers
-saved_messages
-subscriptions
-
-Cada registro deve estar associado corretamente ao usuário autenticado.
-
-Implementar RLS para garantir:
-
-um usuário nunca pode acessar os dados de outro usuário.
-
-Não confiar apenas no frontend para segurança.
-
-19. IA
-
-A IA deve possuir um contexto estruturado.
-
-Sempre que possível, fornecer para o modelo:
-
-negócio;
-
-segmento;
-
-produtos;
-
-preços;
-
-público-alvo;
-
-tom de voz;
-
-contexto da conversa.
-
-A IA nunca deve inventar:
-
-preços;
-
-descontos;
-
-produtos;
-
-condições comerciais;
-
-políticas da empresa.
-
-Se determinada informação não estiver cadastrada, ela deve informar que a informação não está disponível em vez de inventar.
-
-20. EXPERIÊNCIA DO USUÁRIO
-
-O aplicativo deve ser:
-
-responsivo;
-
-mobile-first;
-
-rápido;
-
-acessível;
-
-intuitivo.
-
-Criar:
-
-skeleton loading;
-
-empty states;
-
-toast notifications;
-
-confirmação antes de excluir;
-
-tratamento de erros;
-
-estados de carregamento da IA;
-
-mensagens amigáveis.
-
-Não deixar nenhuma tela com aparência inacabada.
-
-21. SIDEBAR
-
-Criar sidebar principal:
-
-🏠 Dashboard
-
-🤖 IA de Vendas
-
-💬 Gerar Resposta
-
-🔥 Follow-ups
-
-👥 CRM
-
-📦 Produtos
-
-🎯 Ofertas
-
-📚 Biblioteca
-
-⚙️ Configurações
-
-Na parte inferior:
-
-Plano atual
-
-FREE
-
-Botão:
-
-Fazer upgrade
-
-22. RESPONSIVIDADE
-
-Desktop:
-
-Sidebar fixa.
-
-Mobile:
-
-Sidebar transformada em menu/hamburger.
-
-O CRM deve funcionar bem em telas pequenas.
-
-Cards e tabelas devem ser responsivos.
-
-23. SEGURANÇA
-
-Implementar:
-
-autenticação Supabase;
-
-RLS;
-
-validação de inputs;
-
-proteção contra acesso indevido aos dados;
-
-secrets somente no backend;
-
-nenhuma API key exposta no frontend.
-
-Nunca colocar chaves secretas diretamente no código client-side.
-
-24. DADOS DE DEMONSTRAÇÃO
-
-Após o usuário criar a conta, se for apropriado, utilizar dados demonstrativos claramente identificados ou permitir que o usuário pule o onboarding.
-
-Não misturar dados fictícios com dados reais do usuário sem deixar isso claro.
-
-25. QUALIDADE DO CÓDIGO
-
-Quero código organizado e escalável.
-
-Utilizar componentes reutilizáveis.
-
-Separar:
-
-UI
-
-lógica
-
-serviços
-
-integração com IA
-
-acesso ao banco
-
-tipos/interfaces.
-
-Evitar código duplicado.
-
-Utilizar TypeScript corretamente.
-
-Não utilizar any sem necessidade.
-
-26. IMPORTANTE — ORDEM DE IMPLEMENTAÇÃO
-
-Não tente criar tudo de uma vez de maneira superficial.
-
-Implemente seguindo esta ordem:
-
-Estrutura do projeto
-
-Design system
-
-Landing page
-
-Autenticação
-
-Banco de dados
-
-Onboarding
-
-Dashboard
-
-Produtos
-
-Leads/CRM
-
-IA de vendas
-
-Gerador de respostas
-
-Follow-ups
-
-Ofertas
-
-Biblioteca
-
-Configurações
-
-Estrutura de planos
-
-Polimento e responsividade
-
-Depois de cada etapa, garanta que a aplicação continue funcionando.
-
-27. RESULTADO ESPERADO
-
-Quero um produto que, ao ser aberto pela primeira vez, passe a sensação de:
-
-"Isso é um SaaS profissional que eu poderia pagar para usar."
-
-Não quero:
-
-landing page genérica;
-
-dashboard genérico;
-
-chatbot genérico;
-
-funcionalidades falsas;
-
-botões que não fazem nada;
-
-dados hardcoded onde deveria existir banco;
-
-telas sem integração;
-
-design de template.
-
-Priorize funcionalidade real + UX + aparência premium.
-
-Comece agora criando a arquitetura e o MVP funcional do VendAI.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/d4c7e7ce-17a6-4ce4-9027-db7719e5996d).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Pré-requisitos: Node.js e um projeto Supabase (URL + chaves).
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+git clone <url-deste-repositorio>
+cd vendicraft-ai
+npm install
+```
+
+Copie o arquivo de exemplo e preencha com valores reais (ver [Variáveis de ambiente](#variáveis-de-ambiente)):
+
+```sh
+cp .env.example .env
+```
+
+Depois rode:
+
+```sh
 npm run dev
 ```
+
+Outros scripts disponíveis:
+
+```sh
+npm run build     # build de produção
+npm run test      # roda a suíte de testes (Vitest)
+npm run lint      # ESLint
+npx tsc --noEmit  # checagem de tipos
+```
+
+## Variáveis de ambiente
+
+Nenhum valor real abaixo — apenas os nomes que o código efetivamente lê.
+
+```env
+# Cliente (Vite injeta em build-time)
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+
+# Servidor
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# IA
+AI_PROVIDER=gemini
+GEMINI_API_KEY=
+# Opcionais (têm default no código):
+AI_REQUEST_TIMEOUT_MS=
+AI_MAX_OUTPUT_TOKENS=
+
+# Billing (webhook Kirvano)
+KIRVANO_WEBHOOK_TOKEN=
+```
+
+`SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY` e `KIRVANO_WEBHOOK_TOKEN` são secrets de servidor — nunca devem receber o prefixo `VITE_` nem ser expostos ao cliente.
+
+## Deploy
+
+Framework: **TanStack Start** (Vite + Nitro). O comando de build é `npm run build`; o Nitro detecta automaticamente o ambiente de deploy através de variáveis de ambiente padrão da plataforma (ex.: a Vercel injeta `VERCEL=1` durante o build) e gera a saída no formato correto — verificado localmente reproduzindo esse ambiente, sem necessidade de `vercel.json`.
+
+Variáveis de ambiente da seção anterior precisam ser configuradas no provedor de deploy antes do primeiro build (as de servidor marcadas como sensíveis/secret).
+
+## Demo
+
+*(a preencher após o deploy: URL pública da aplicação)*
+
+Screenshots ainda não incluídos neste README — pendente adicionar capturas de tela das telas principais (landing page, dashboard, IA de vendas, CRM) sem dados pessoais reais.
+
+## Roadmap futuro
+
+- Integração comercial completa com a Kirvano (checkout real, renovação, cancelamento, reativação) — hoje a arquitetura do webhook está pronta e testada, mas roda sem produto/oferta real configurados de propósito, para não inventar comportamento não confirmado pela Kirvano.
+- Domínio próprio.
+- Expansão dos recursos de IA (ex.: análise de múltiplas conversas simultâneas, integração direta com WhatsApp Business API).
+
+## Status
+
+Projeto desenvolvido como aplicação SaaS full-stack e utilizado como projeto de portfólio. A infraestrutura de billing está implementada e testada, mas a integração comercial real com a Kirvano ainda não foi ativada — ver Roadmap.

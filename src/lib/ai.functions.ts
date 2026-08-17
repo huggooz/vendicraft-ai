@@ -2,10 +2,18 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callAI, extractJson } from "@/lib/ai/gateway.server";
-import { BASE_RULES, assertWithinLimit, buildBusinessContext, logGeneration } from "@/lib/ai/context.server";
+import {
+  BASE_RULES,
+  assertWithinLimit,
+  buildBusinessContext,
+  logGeneration,
+} from "@/lib/ai/context.server";
 import type { ConversationAnalysis, OfferResult, UsageSummary } from "@/lib/ai/types";
 
-const analyzeSchema = z.object({ conversation: z.string().min(10), leadId: z.string().uuid().nullish() });
+const analyzeSchema = z.object({
+  conversation: z.string().min(10),
+  leadId: z.string().uuid().nullish(),
+});
 const replySchema = z.object({
   goal: z.string(),
   customerMessage: z.string().min(2),
@@ -58,15 +66,20 @@ const offerResultSchema = z.object({
 export const analyzeConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => analyzeSchema.parse(data))
-  .handler(async ({ data, context }): Promise<{ analysis: ConversationAnalysis; conversationId: string }> => {
-    const { supabase, userId } = context;
-    await assertWithinLimit(supabase, userId, "analysis");
-    const businessContext = await buildBusinessContext(supabase, userId);
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{ analysis: ConversationAnalysis; conversationId: string }> => {
+      const { supabase, userId } = context;
+      await assertWithinLimit(supabase, userId, "analysis");
+      const businessContext = await buildBusinessContext(supabase, userId);
 
-    const raw = await callAI([
-      {
-        role: "system",
-        content: `${BASE_RULES}
+      const raw = await callAI(
+        [
+          {
+            role: "system",
+            content: `${BASE_RULES}
 
 ${businessContext}
 
@@ -81,49 +94,64 @@ Analise a conversa enviada e responda APENAS com um JSON válido neste formato:
   "suggested_reply": "mensagem pronta para enviar ao cliente no WhatsApp",
   "summary": "resumo de uma linha da conversa"
 }`,
-      },
-      { role: "user", content: `CONVERSA COM O CLIENTE:\n${data.conversation}` },
-    ], "gemini");
+          },
+          { role: "user", content: `CONVERSA COM O CLIENTE:\n${data.conversation}` },
+        ],
+        "gemini",
+      );
 
-    const parsed = extractJson<ConversationAnalysis>(raw);
-    const parseResult = conversationAnalysisSchema.safeParse(parsed);
-    if (!parseResult.success) {
-      throw new Error("A IA respondeu em um formato inesperado. Tente novamente.");
-    }
-    const analysis = parseResult.data as ConversationAnalysis;
-    analysis.buying_intent = Math.max(0, Math.min(100, Math.round(Number(analysis.buying_intent) || 0)));
-    if (!["quente", "morno", "frio"].includes(analysis.temperature)) analysis.temperature = "morno";
-    analysis.objections = Array.isArray(analysis.objections) ? analysis.objections.slice(0, 6) : [];
+      const parsed = extractJson<ConversationAnalysis>(raw);
+      const parseResult = conversationAnalysisSchema.safeParse(parsed);
+      if (!parseResult.success) {
+        throw new Error("A IA respondeu em um formato inesperado. Tente novamente.");
+      }
+      const analysis = parseResult.data as ConversationAnalysis;
+      analysis.buying_intent = Math.max(
+        0,
+        Math.min(100, Math.round(Number(analysis.buying_intent) || 0)),
+      );
+      if (!["quente", "morno", "frio"].includes(analysis.temperature))
+        analysis.temperature = "morno";
+      analysis.objections = Array.isArray(analysis.objections)
+        ? analysis.objections.slice(0, 6)
+        : [];
 
-    const { data: inserted, error } = await supabase
-      .from("conversations")
-      .insert({
-        user_id: userId,
-        lead_id: data.leadId ?? null,
-        title: analysis.summary?.slice(0, 120) ?? "Conversa analisada",
-        raw_text: data.conversation,
-        analysis: analysis as never,
-      })
-      .select("id")
-      .single();
-    if (error) throw new Error("Não foi possível salvar a análise.");
-
-    await logGeneration(supabase, userId, "analysis", { length: data.conversation.length }, analysis);
-
-    if (data.leadId) {
-      await supabase
-        .from("leads")
-        .update({
-          temperature: analysis.temperature,
-          buying_intent: analysis.buying_intent,
-          last_contact_at: new Date().toISOString(),
+      const { data: inserted, error } = await supabase
+        .from("conversations")
+        .insert({
+          user_id: userId,
+          lead_id: data.leadId ?? null,
+          title: analysis.summary?.slice(0, 120) ?? "Conversa analisada",
+          raw_text: data.conversation,
+          analysis: analysis as never,
         })
-        .eq("id", data.leadId)
-        .eq("user_id", userId);
-    }
+        .select("id")
+        .single();
+      if (error) throw new Error("Não foi possível salvar a análise.");
 
-    return { analysis, conversationId: inserted.id };
-  });
+      await logGeneration(
+        supabase,
+        userId,
+        "analysis",
+        { length: data.conversation.length },
+        analysis,
+      );
+
+      if (data.leadId) {
+        await supabase
+          .from("leads")
+          .update({
+            temperature: analysis.temperature,
+            buying_intent: analysis.buying_intent,
+            last_contact_at: new Date().toISOString(),
+          })
+          .eq("id", data.leadId)
+          .eq("user_id", userId);
+      }
+
+      return { analysis, conversationId: inserted.id };
+    },
+  );
 
 export const generateReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -138,22 +166,25 @@ export const generateReply = createServerFn({ method: "POST" })
       : "";
 
     const reply = (
-      await callAI([
-        {
-          role: "system",
-          content: `${BASE_RULES}
+      await callAI(
+        [
+          {
+            role: "system",
+            content: `${BASE_RULES}
 
 ${businessContext}
 
 Escreva UMA mensagem pronta para o vendedor enviar ao cliente. Responda somente com o texto da mensagem, sem aspas, sem título, sem explicações. ${variantInstruction}`,
-        },
-        {
-          role: "user",
-          content: `Objetivo da mensagem: ${data.goal}
+          },
+          {
+            role: "user",
+            content: `Objetivo da mensagem: ${data.goal}
 Mensagem do cliente: ${data.customerMessage}
 Informações adicionais do vendedor: ${data.extraContext || "nenhuma"}`,
-        },
-      ], "gemini")
+          },
+        ],
+        "gemini",
+      )
     ).trim();
 
     if (!reply) throw new Error("A IA não retornou uma resposta. Tente novamente.");
@@ -171,24 +202,27 @@ export const generateFollowUp = createServerFn({ method: "POST" })
     const businessContext = await buildBusinessContext(supabase, userId);
 
     const message = (
-      await callAI([
-        {
-          role: "system",
-          content: `${BASE_RULES}
+      await callAI(
+        [
+          {
+            role: "system",
+            content: `${BASE_RULES}
 
 ${businessContext}
 
 Escreva um follow-up pronto para enviar no WhatsApp. Estilo pedido: ${data.style}. Responda somente com o texto da mensagem.`,
-        },
-        {
-          role: "user",
-          content: `Cliente: ${data.customerName}
+          },
+          {
+            role: "user",
+            content: `Cliente: ${data.customerName}
 Contexto: ${data.context || "não informado"}
 Data do último contato: ${data.lastContactDate || "não informada"}
 Motivo do contato: ${data.reason || "não informado"}
 Objetivo: ${data.goal || "reengajar e avançar a venda"}`,
-        },
-      ], "gemini")
+          },
+        ],
+        "gemini",
+      )
     ).trim();
 
     if (!message) throw new Error("A IA não retornou uma resposta. Tente novamente.");
@@ -205,10 +239,11 @@ export const generateOffer = createServerFn({ method: "POST" })
     await assertWithinLimit(supabase, userId, "generation");
     const businessContext = await buildBusinessContext(supabase, userId);
 
-    const raw = await callAI([
-      {
-        role: "system",
-        content: `${BASE_RULES}
+    const raw = await callAI(
+      [
+        {
+          role: "system",
+          content: `${BASE_RULES}
 
 ${businessContext}
 
@@ -224,17 +259,19 @@ Crie uma oferta comercial usando SOMENTE os dados informados. Responda APENAS co
   "aggressive_variant": "",
   "premium_variant": ""
 }`,
-      },
-      {
-        role: "user",
-        content: `Produto: ${data.productName}
+        },
+        {
+          role: "user",
+          content: `Produto: ${data.productName}
 Preço atual: ${data.currentPrice || "não informado"}
 Desconto: ${data.discount || "não informado"}
 Público-alvo: ${data.audience || "não informado"}
 Objetivo da campanha: ${data.campaignGoal || "não informado"}
 Prazo da oferta: ${data.deadline || "não informado"}`,
-      },
-    ], "gemini");
+        },
+      ],
+      "gemini",
+    );
 
     const parsedOffer = extractJson<OfferResult>(raw);
     const offerParseResult = offerResultSchema.safeParse(parsedOffer);
@@ -265,7 +302,11 @@ export const getUsage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<UsageSummary> => {
     const { supabase, userId } = context;
-    const { data: profile } = await supabase.from("profiles").select("plan").eq("id", userId).maybeSingle();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", userId)
+      .maybeSingle();
     const plan = profile?.plan ?? "free";
     const monthStart = new Date();
     monthStart.setDate(1);
@@ -286,7 +327,8 @@ export const getUsage = createServerFn({ method: "GET" })
         .gte("created_at", monthStart.toISOString()),
     ]);
 
-    const limits = plan === "free" ? { analyses: 10, generations: 20 } : { analyses: 500, generations: 1000 };
+    const limits =
+      plan === "free" ? { analyses: 10, generations: 20 } : { analyses: 500, generations: 1000 };
     return {
       plan,
       analyses: analyses ?? 0,

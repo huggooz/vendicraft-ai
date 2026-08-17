@@ -8,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format";
 import { useCreateRow, useDeleteRow, useRows, useUpdateRow, type Row } from "@/hooks/useTable";
 
@@ -16,9 +22,15 @@ export const Route = createFileRoute("/_authenticated/produtos")({
   head: () => ({
     meta: [
       { title: "Produtos e Serviços — VendAI" },
-      { name: "description", content: "Cadastre seus produtos para a IA vender com informações reais." },
+      {
+        name: "description",
+        content: "Cadastre seus produtos para a IA vender com informações reais.",
+      },
       { property: "og:title", content: "Produtos e Serviços — VendAI" },
-      { property: "og:description", content: "Cadastre seus produtos para a IA vender com informações reais." },
+      {
+        property: "og:description",
+        content: "Cadastre seus produtos para a IA vender com informações reais.",
+      },
     ],
   }),
   component: Produtos,
@@ -26,7 +38,14 @@ export const Route = createFileRoute("/_authenticated/produtos")({
 
 type Product = Row<"products">;
 
-const empty = { name: "", description: "", price: "", benefits: "", target_audience: "", commercial_notes: "" };
+const empty = {
+  name: "",
+  description: "",
+  price: "",
+  benefits: "",
+  target_audience: "",
+  commercial_notes: "",
+};
 
 function Produtos() {
   const { data: products = [], isLoading } = useRows("products");
@@ -108,10 +127,14 @@ function Produtos() {
             <div key={product.id} className="surface-panel rounded-2xl p-5">
               <div className="flex items-start justify-between gap-2">
                 <h2 className="font-semibold">{product.name}</h2>
-                <span className="shrink-0 font-display font-bold text-primary">{formatCurrency(product.price)}</span>
+                <span className="shrink-0 font-display font-bold text-primary">
+                  {formatCurrency(product.price)}
+                </span>
               </div>
               {product.description && (
-                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{product.description}</p>
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                  {product.description}
+                </p>
               )}
               {product.benefits && (
                 <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">
@@ -126,7 +149,11 @@ function Produtos() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => remove.mutate(product.id, { onSuccess: () => toast.success("Produto removido.") })}
+                  onClick={() =>
+                    remove.mutate(product.id, {
+                      onSuccess: () => toast.success("Produto removido."),
+                    })
+                  }
                 >
                   <Trash2 className="size-3.5 text-destructive" />
                 </Button>
@@ -145,7 +172,10 @@ function Produtos() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Nome</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Preço</Label>
@@ -158,15 +188,26 @@ function Produtos() {
             </div>
             <div className="space-y-2">
               <Label>Descrição</Label>
-              <Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <Textarea
+                rows={3}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>Benefícios</Label>
-              <Textarea rows={2} value={form.benefits} onChange={(e) => setForm({ ...form, benefits: e.target.value })} />
+              <Textarea
+                rows={2}
+                value={form.benefits}
+                onChange={(e) => setForm({ ...form, benefits: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>Público-alvo</Label>
-              <Input value={form.target_audience} onChange={(e) => setForm({ ...form, target_audience: e.target.value })} />
+              <Input
+                value={form.target_audience}
+                onChange={(e) => setForm({ ...form, target_audience: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>Observações comerciais</Label>

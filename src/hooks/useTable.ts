@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type PublicTables = Database["public"]["Tables"];
-export type TableName = "products" | "leads" | "follow_ups" | "saved_messages" | "offers" | "conversations";
+export type TableName =
+  "products" | "leads" | "follow_ups" | "saved_messages" | "offers" | "conversations";
 export type Row<T extends TableName> = PublicTables[T]["Row"];
 
 const db = supabase as any;

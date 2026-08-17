@@ -19,9 +19,15 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Entrar no VendAI" },
-      { name: "description", content: "Acesse sua conta VendAI e transforme suas conversas em vendas." },
+      {
+        name: "description",
+        content: "Acesse sua conta VendAI e transforme suas conversas em vendas.",
+      },
       { property: "og:title", content: "Entrar no VendAI" },
-      { property: "og:description", content: "Acesse sua conta VendAI e transforme suas conversas em vendas." },
+      {
+        property: "og:description",
+        content: "Acesse sua conta VendAI e transforme suas conversas em vendas.",
+      },
     ],
   }),
   component: AuthPage,
@@ -89,7 +95,9 @@ function AuthPage() {
 
   async function handleGoogle() {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
     if (result.error) {
       toast.error("Não foi possível entrar com o Google.");
       setLoading(false);
@@ -100,9 +108,15 @@ function AuthPage() {
   }
 
   const titles: Record<Mode, { title: string; subtitle: string }> = {
-    login: { title: "Entrar na sua conta", subtitle: "Continue transformando conversas em vendas." },
+    login: {
+      title: "Entrar na sua conta",
+      subtitle: "Continue transformando conversas em vendas.",
+    },
     signup: { title: "Criar conta grátis", subtitle: "Leva menos de 2 minutos e não pede cartão." },
-    reset: { title: "Recuperar senha", subtitle: "Enviaremos um link para você criar uma nova senha." },
+    reset: {
+      title: "Recuperar senha",
+      subtitle: "Enviaremos um link para você criar uma nova senha.",
+    },
   };
 
   return (
@@ -173,16 +187,27 @@ function AuthPage() {
 
             <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
               {loading && <Loader2 className="size-4 animate-spin" />}
-              {mode === "signup" ? "Criar conta grátis" : mode === "login" ? "Entrar" : "Enviar link"}
+              {mode === "signup"
+                ? "Criar conta grátis"
+                : mode === "login"
+                  ? "Entrar"
+                  : "Enviar link"}
             </Button>
           </form>
 
           {mode !== "reset" && (
             <>
               <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
+                <span className="h-px flex-1 bg-border" /> ou{" "}
+                <span className="h-px flex-1 bg-border" />
               </div>
-              <Button variant="subtle" size="lg" className="w-full" onClick={handleGoogle} disabled={loading}>
+              <Button
+                variant="subtle"
+                size="lg"
+                className="w-full"
+                onClick={handleGoogle}
+                disabled={loading}
+              >
                 Continuar com Google
               </Button>
             </>

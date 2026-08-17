@@ -11,7 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { analyzeConversation } from "@/lib/ai.functions";
 import type { ConversationAnalysis } from "@/lib/ai/types";
 import { useCreateRow, useRows } from "@/hooks/useTable";
@@ -21,9 +27,15 @@ export const Route = createFileRoute("/_authenticated/ia-vendas")({
   head: () => ({
     meta: [
       { title: "IA de Vendas — VendAI" },
-      { name: "description", content: "Cole a conversa do WhatsApp e receba análise, objeções e a próxima ação." },
+      {
+        name: "description",
+        content: "Cole a conversa do WhatsApp e receba análise, objeções e a próxima ação.",
+      },
       { property: "og:title", content: "IA de Vendas — VendAI" },
-      { property: "og:description", content: "Cole a conversa do WhatsApp e receba análise, objeções e a próxima ação." },
+      {
+        property: "og:description",
+        content: "Cole a conversa do WhatsApp e receba análise, objeções e a próxima ação.",
+      },
     ],
   }),
   component: IaVendas,
@@ -53,7 +65,7 @@ function IaVendas() {
     onError: (error: Error) => toast.error(error.message || "Não foi possível analisar agora."),
   });
 
-  const meta = analysis ? TEMP_META[analysis.temperature] ?? TEMP_META.morno : null;
+  const meta = analysis ? (TEMP_META[analysis.temperature] ?? TEMP_META.morno) : null;
 
   return (
     <AppShell title="IA de Vendas" subtitle="Cole a conversa e descubra como avançar essa venda.">
@@ -111,7 +123,12 @@ function IaVendas() {
             <div className="space-y-4">
               <div className="surface-panel rounded-2xl p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className={cn("flex items-center gap-2 font-display text-lg font-bold", meta?.className)}>
+                  <span
+                    className={cn(
+                      "flex items-center gap-2 font-display text-lg font-bold",
+                      meta?.className,
+                    )}
+                  >
                     {meta && <meta.icon className="size-5" />} {meta?.label}
                   </span>
                   <Badge variant="secondary">{analysis.funnel_stage}</Badge>

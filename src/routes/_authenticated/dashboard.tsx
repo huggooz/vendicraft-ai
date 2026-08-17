@@ -12,7 +12,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Brain, Flame, MessageSquareText, Plus, Target, TrendingUp, Users, Wallet } from "lucide-react";
+import {
+  Brain,
+  Flame,
+  MessageSquareText,
+  Plus,
+  Target,
+  TrendingUp,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,7 +36,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { title: "Dashboard — VendAI" },
       { name: "description", content: "Resumo das suas oportunidades, leads e vendas no VendAI." },
       { property: "og:title", content: "Dashboard — VendAI" },
-      { property: "og:description", content: "Resumo das suas oportunidades, leads e vendas no VendAI." },
+      {
+        property: "og:description",
+        content: "Resumo das suas oportunidades, leads e vendas no VendAI.",
+      },
     ],
   }),
   component: Dashboard,
@@ -62,7 +74,9 @@ function Dashboard() {
       const value = leads
         .filter((lead) => {
           const created = new Date(lead.created_at);
-          return created.getMonth() === date.getMonth() && created.getFullYear() === date.getFullYear();
+          return (
+            created.getMonth() === date.getMonth() && created.getFullYear() === date.getFullYear()
+          );
         })
         .reduce((sum, lead) => sum + Number(lead.potential_value ?? 0), 0);
       months.push({ label, value });
@@ -72,9 +86,21 @@ function Dashboard() {
 
   const distribution = useMemo(
     () => [
-      { name: "Quente", value: leads.filter((l) => l.temperature === "quente").length, color: "var(--hot)" },
-      { name: "Morno", value: leads.filter((l) => l.temperature === "morno").length, color: "var(--warm)" },
-      { name: "Frio", value: leads.filter((l) => l.temperature === "frio").length, color: "var(--cold)" },
+      {
+        name: "Quente",
+        value: leads.filter((l) => l.temperature === "quente").length,
+        color: "var(--hot)",
+      },
+      {
+        name: "Morno",
+        value: leads.filter((l) => l.temperature === "morno").length,
+        color: "var(--warm)",
+      },
+      {
+        name: "Frio",
+        value: leads.filter((l) => l.temperature === "frio").length,
+        color: "var(--cold)",
+      },
     ],
     [leads],
   );
@@ -95,16 +121,40 @@ function Dashboard() {
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Metric label="Leads" value={String(metrics.total)} icon={Users} loading={isLoading} />
-        <Metric label="Leads quentes" value={String(metrics.hot)} icon={Flame} accent="hot" loading={isLoading} />
-        <Metric label="Oportunidades" value={formatCurrency(metrics.opportunities)} icon={Target} loading={isLoading} />
-        <Metric label="Vendas" value={formatCurrency(metrics.sales)} icon={Wallet} accent="primary" loading={isLoading} />
-        <Metric label="Conversão" value={`${metrics.conversion}%`} icon={TrendingUp} loading={isLoading} />
+        <Metric
+          label="Leads quentes"
+          value={String(metrics.hot)}
+          icon={Flame}
+          accent="hot"
+          loading={isLoading}
+        />
+        <Metric
+          label="Oportunidades"
+          value={formatCurrency(metrics.opportunities)}
+          icon={Target}
+          loading={isLoading}
+        />
+        <Metric
+          label="Vendas"
+          value={formatCurrency(metrics.sales)}
+          icon={Wallet}
+          accent="primary"
+          loading={isLoading}
+        />
+        <Metric
+          label="Conversão"
+          value={`${metrics.conversion}%`}
+          icon={TrendingUp}
+          loading={isLoading}
+        />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         <div className="surface-panel rounded-2xl p-6">
           <h2 className="font-semibold">Oportunidades ao longo do tempo</h2>
-          <p className="text-sm text-muted-foreground">Valor potencial dos leads criados nos últimos 6 meses.</p>
+          <p className="text-sm text-muted-foreground">
+            Valor potencial dos leads criados nos últimos 6 meses.
+          </p>
           <div className="mt-6 h-64">
             {isLoading ? (
               <Skeleton className="h-full w-full rounded-xl" />
@@ -118,8 +168,20 @@ function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} width={70} />
+                  <XAxis
+                    dataKey="label"
+                    stroke="var(--muted-foreground)"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="var(--muted-foreground)"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    width={70}
+                  />
                   <Tooltip
                     contentStyle={{
                       background: "var(--popover)",
@@ -129,7 +191,13 @@ function Dashboard() {
                     }}
                     formatter={(value: number) => formatCurrency(value)}
                   />
-                  <Area type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} fill="url(#areaFill)" />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="var(--primary)"
+                    strokeWidth={2}
+                    fill="url(#areaFill)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -159,7 +227,14 @@ function Dashboard() {
               <div className="mt-4 h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={distribution} dataKey="value" nameKey="name" innerRadius={52} outerRadius={78} paddingAngle={3}>
+                    <Pie
+                      data={distribution}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={52}
+                      outerRadius={78}
+                      paddingAngle={3}
+                    >
                       {distribution.map((entry) => (
                         <Cell key={entry.name} fill={entry.color} stroke="var(--background)" />
                       ))}
@@ -219,10 +294,16 @@ function Metric({
   return (
     <div className="surface-panel rounded-2xl p-5">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          {label}
+        </span>
         <Icon
           className={
-            accent === "hot" ? "size-4 text-hot" : accent === "primary" ? "size-4 text-primary" : "size-4 text-muted-foreground"
+            accent === "hot"
+              ? "size-4 text-hot"
+              : accent === "primary"
+                ? "size-4 text-primary"
+                : "size-4 text-muted-foreground"
           }
         />
       </div>

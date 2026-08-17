@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Logo } from "@/components/brand";
 import { cn } from "@/lib/utils";
@@ -18,9 +24,15 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
       { title: "Configurar seu negócio — VendAI" },
-      { name: "description", content: "Conte sobre seu negócio para a IA do VendAI vender com o seu contexto." },
+      {
+        name: "description",
+        content: "Conte sobre seu negócio para a IA do VendAI vender com o seu contexto.",
+      },
       { property: "og:title", content: "Configurar seu negócio — VendAI" },
-      { property: "og:description", content: "Conte sobre seu negócio para a IA do VendAI vender com o seu contexto." },
+      {
+        property: "og:description",
+        content: "Conte sobre seu negócio para a IA do VendAI vender com o seu contexto.",
+      },
     ],
   }),
   component: Onboarding,
@@ -90,7 +102,11 @@ function Onboarding() {
       }
 
       await updateProfile.mutateAsync({ onboarding_completed: true, default_tone: tone });
-      toast.success(skip ? "Você pode configurar depois em Configurações." : "Tudo pronto! Bem-vindo ao VendAI.");
+      toast.success(
+        skip
+          ? "Você pode configurar depois em Configurações."
+          : "Tudo pronto! Bem-vindo ao VendAI.",
+      );
       navigate({ to: "/dashboard" });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Não foi possível salvar.");
@@ -121,7 +137,11 @@ function Onboarding() {
                 key={label}
                 className={cn(
                   "flex items-center gap-1.5",
-                  index === step ? "text-primary" : index < step ? "text-foreground" : "text-muted-foreground",
+                  index === step
+                    ? "text-primary"
+                    : index < step
+                      ? "text-foreground"
+                      : "text-muted-foreground",
                 )}
               >
                 {index < step ? <Check className="size-3" /> : <span>{index + 1}.</span>} {label}
@@ -132,9 +152,16 @@ function Onboarding() {
           <div className="mt-8 space-y-5">
             {step === 0 && (
               <>
-                <Header title="Vamos conhecer seu negócio." subtitle="A IA usa essas informações em toda resposta." />
+                <Header
+                  title="Vamos conhecer seu negócio."
+                  subtitle="A IA usa essas informações em toda resposta."
+                />
                 <Field label="Nome do negócio">
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Studio Bella" />
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Ex.: Studio Bella"
+                  />
                 </Field>
                 <Field label="Segmento">
                   <Select value={segment} onValueChange={setSegment}>
@@ -163,7 +190,10 @@ function Onboarding() {
 
             {step === 1 && (
               <>
-                <Header title="Quem são seus clientes?" subtitle="Quanto mais específico, melhor a IA vende." />
+                <Header
+                  title="Quem são seus clientes?"
+                  subtitle="Quanto mais específico, melhor a IA vende."
+                />
                 <Field label="Público-alvo">
                   <Input
                     value={audience}
@@ -191,10 +221,16 @@ function Onboarding() {
 
             {step === 2 && (
               <>
-                <Header title="O que você vende?" subtitle="Cadastre pelo menos um produto ou serviço." />
+                <Header
+                  title="O que você vende?"
+                  subtitle="Cadastre pelo menos um produto ou serviço."
+                />
                 <div className="space-y-4">
                   {products.map((product, index) => (
-                    <div key={index} className="rounded-2xl border border-border bg-elevated/60 p-4">
+                    <div
+                      key={index}
+                      className="rounded-2xl border border-border bg-elevated/60 p-4"
+                    >
                       <div className="mb-3 flex items-center justify-between">
                         <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                           Item {index + 1}
@@ -203,7 +239,9 @@ function Onboarding() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => setProducts((prev) => prev.filter((_, i) => i !== index))}
+                            onClick={() =>
+                              setProducts((prev) => prev.filter((_, i) => i !== index))
+                            }
                           >
                             <Trash2 className="size-4 text-destructive" />
                           </Button>
@@ -241,7 +279,10 @@ function Onboarding() {
                   <Button
                     variant="subtle"
                     onClick={() =>
-                      setProducts((prev) => [...prev, { name: "", description: "", price: "", benefits: "" }])
+                      setProducts((prev) => [
+                        ...prev,
+                        { name: "", description: "", price: "", benefits: "" },
+                      ])
                     }
                   >
                     <Plus className="size-4" /> Adicionar outro
@@ -252,7 +293,10 @@ function Onboarding() {
 
             {step === 3 && (
               <>
-                <Header title="Como você quer conversar?" subtitle="Esse será o tom padrão das mensagens geradas." />
+                <Header
+                  title="Como você quer conversar?"
+                  subtitle="Esse será o tom padrão das mensagens geradas."
+                />
                 <div className="grid gap-3 sm:grid-cols-2">
                   {TONES.map((item) => (
                     <button
@@ -275,11 +319,20 @@ function Onboarding() {
           </div>
 
           <div className="mt-9 flex items-center justify-between gap-3">
-            <Button variant="ghost" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0 || saving}>
+            <Button
+              variant="ghost"
+              onClick={() => setStep((s) => Math.max(0, s - 1))}
+              disabled={step === 0 || saving}
+            >
               <ArrowLeft className="size-4" /> Voltar
             </Button>
             {step < STEPS.length - 1 ? (
-              <Button variant="hero" size="lg" onClick={() => setStep((s) => s + 1)} disabled={!canAdvance}>
+              <Button
+                variant="hero"
+                size="lg"
+                onClick={() => setStep((s) => s + 1)}
+                disabled={!canAdvance}
+              >
                 Continuar <ArrowRight className="size-4" />
               </Button>
             ) : (

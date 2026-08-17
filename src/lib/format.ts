@@ -8,7 +8,9 @@ export function formatCurrency(value: number | null | undefined): string {
 
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "—";
-  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(new Date(value));
+  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(
+    new Date(value),
+  );
 }
 
 export function formatDateTime(value: string | null | undefined): string {

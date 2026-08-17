@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { generateReply } from "@/lib/ai.functions";
 import { REPLY_GOALS, REPLY_VARIANTS } from "@/lib/constants";
 import { useCreateRow } from "@/hooks/useTable";
@@ -19,9 +25,15 @@ export const Route = createFileRoute("/_authenticated/gerar-resposta")({
   head: () => ({
     meta: [
       { title: "Gerar Resposta — VendAI" },
-      { name: "description", content: "Gere mensagens de venda prontas para o WhatsApp em segundos." },
+      {
+        name: "description",
+        content: "Gere mensagens de venda prontas para o WhatsApp em segundos.",
+      },
       { property: "og:title", content: "Gerar Resposta — VendAI" },
-      { property: "og:description", content: "Gere mensagens de venda prontas para o WhatsApp em segundos." },
+      {
+        property: "og:description",
+        content: "Gere mensagens de venda prontas para o WhatsApp em segundos.",
+      },
     ],
   }),
   component: GerarResposta,

@@ -17,7 +17,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Logo } from "@/components/brand";
 import { cn } from "@/lib/utils";
 import { PLANS } from "@/lib/constants";
@@ -34,7 +39,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "VendAI — Transforme conversas em vendas com IA" },
       {
         property: "og:description",
-        content: "Analise clientes, responda melhor, faça follow-ups e organize suas oportunidades em um único lugar.",
+        content:
+          "Analise clientes, responda melhor, faça follow-ups e organize suas oportunidades em um único lugar.",
       },
     ],
   }),
@@ -42,36 +48,99 @@ export const Route = createFileRoute("/")({
 });
 
 const problems = [
-  { icon: Clock3, title: "Cliente esperando resposta", text: "Cada minuto sem resposta reduz drasticamente a chance de fechar." },
-  { icon: XCircle, title: "Oportunidades perdidas", text: "Conversas que morreram porque ninguém retomou o contato." },
-  { icon: Search, title: "Não saber o que responder", text: "Objeção de preço, dúvida técnica, silêncio: cada caso pede outra abordagem." },
-  { icon: Repeat2, title: "Falta de acompanhamento", text: "Sem follow-up estruturado, o cliente compra de quem lembrou dele." },
-  { icon: Users, title: "Leads espalhados", text: "Nomes soltos em conversas, prints e cadernos. Nada organizado." },
+  {
+    icon: Clock3,
+    title: "Cliente esperando resposta",
+    text: "Cada minuto sem resposta reduz drasticamente a chance de fechar.",
+  },
+  {
+    icon: XCircle,
+    title: "Oportunidades perdidas",
+    text: "Conversas que morreram porque ninguém retomou o contato.",
+  },
+  {
+    icon: Search,
+    title: "Não saber o que responder",
+    text: "Objeção de preço, dúvida técnica, silêncio: cada caso pede outra abordagem.",
+  },
+  {
+    icon: Repeat2,
+    title: "Falta de acompanhamento",
+    text: "Sem follow-up estruturado, o cliente compra de quem lembrou dele.",
+  },
+  {
+    icon: Users,
+    title: "Leads espalhados",
+    text: "Nomes soltos em conversas, prints e cadernos. Nada organizado.",
+  },
 ];
 
 const steps = [
-  { n: "01", title: "Cole a conversa", text: "Copie o histórico do WhatsApp ou Instagram e cole no VendAI." },
-  { n: "02", title: "A IA analisa o cliente", text: "Temperatura, intenção de compra, objeções e momento do funil." },
-  { n: "03", title: "Receba a resposta pronta", text: "Uma mensagem construída com os dados reais do seu negócio." },
+  {
+    n: "01",
+    title: "Cole a conversa",
+    text: "Copie o histórico do WhatsApp ou Instagram e cole no VendAI.",
+  },
+  {
+    n: "02",
+    title: "A IA analisa o cliente",
+    text: "Temperatura, intenção de compra, objeções e momento do funil.",
+  },
+  {
+    n: "03",
+    title: "Receba a resposta pronta",
+    text: "Uma mensagem construída com os dados reais do seu negócio.",
+  },
 ];
 
 const features = [
-  { icon: Brain, title: "IA de vendas", text: "Leitura completa da conversa com diagnóstico comercial." },
-  { icon: Flame, title: "Análise de leads", text: "Classificação quente, morno e frio com intenção de 0 a 100." },
-  { icon: MessageSquareText, title: "Respostas inteligentes", text: "8 objetivos diferentes, do primeiro contato ao pós-venda." },
+  {
+    icon: Brain,
+    title: "IA de vendas",
+    text: "Leitura completa da conversa com diagnóstico comercial.",
+  },
+  {
+    icon: Flame,
+    title: "Análise de leads",
+    text: "Classificação quente, morno e frio com intenção de 0 a 100.",
+  },
+  {
+    icon: MessageSquareText,
+    title: "Respostas inteligentes",
+    text: "8 objetivos diferentes, do primeiro contato ao pós-venda.",
+  },
   { icon: Repeat2, title: "Follow-up", text: "Mensagens de retomada que não parecem cobrança." },
   { icon: Users, title: "CRM", text: "Pipeline kanban com todas as suas oportunidades." },
-  { icon: Target, title: "Gerador de ofertas", text: "Headline, benefícios, CTA, WhatsApp e Instagram." },
+  {
+    icon: Target,
+    title: "Gerador de ofertas",
+    text: "Headline, benefícios, CTA, WhatsApp e Instagram.",
+  },
   { icon: BarChart3, title: "Dashboard", text: "Oportunidades, vendas e conversão em tempo real." },
   { icon: BookOpen, title: "Biblioteca", text: "Salve e reutilize as mensagens que mais vendem." },
 ];
 
 const faqs = [
-  { q: "Preciso instalar alguma coisa?", a: "Não. O VendAI roda no navegador, no computador ou no celular. Você cola a conversa e recebe a análise." },
-  { q: "O VendAI funciona para qualquer negócio?", a: "Sim. Ele usa os dados que você cadastra — negócio, produtos, preços, público e tom de voz — para adaptar as respostas ao seu contexto." },
-  { q: "Preciso entender de IA?", a: "Não. A interface foi feita para vendedores, não para técnicos. Você preenche campos simples e recebe o resultado pronto." },
-  { q: "Posso cancelar?", a: "Sim, a qualquer momento e sem burocracia. O plano Free continua disponível para sempre." },
-  { q: "Meus dados ficam seguros?", a: "Sim. Cada conta acessa exclusivamente os próprios dados, com isolamento garantido no banco de dados e chaves de IA protegidas no servidor." },
+  {
+    q: "Preciso instalar alguma coisa?",
+    a: "Não. O VendAI roda no navegador, no computador ou no celular. Você cola a conversa e recebe a análise.",
+  },
+  {
+    q: "O VendAI funciona para qualquer negócio?",
+    a: "Sim. Ele usa os dados que você cadastra — negócio, produtos, preços, público e tom de voz — para adaptar as respostas ao seu contexto.",
+  },
+  {
+    q: "Preciso entender de IA?",
+    a: "Não. A interface foi feita para vendedores, não para técnicos. Você preenche campos simples e recebe o resultado pronto.",
+  },
+  {
+    q: "Posso cancelar?",
+    a: "Sim, a qualquer momento e sem burocracia. O plano Free continua disponível para sempre.",
+  },
+  {
+    q: "Meus dados ficam seguros?",
+    a: "Sim. Cada conta acessa exclusivamente os próprios dados, com isolamento garantido no banco de dados e chaves de IA protegidas no servidor.",
+  },
 ];
 
 function LandingPage() {
@@ -81,17 +150,27 @@ function LandingPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
           <Logo />
           <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-            <a href="#como-funciona" className="transition-colors hover:text-foreground">Como funciona</a>
-            <a href="#funcionalidades" className="transition-colors hover:text-foreground">Funcionalidades</a>
-            <a href="#planos" className="transition-colors hover:text-foreground">Planos</a>
-            <a href="#faq" className="transition-colors hover:text-foreground">FAQ</a>
+            <a href="#como-funciona" className="transition-colors hover:text-foreground">
+              Como funciona
+            </a>
+            <a href="#funcionalidades" className="transition-colors hover:text-foreground">
+              Funcionalidades
+            </a>
+            <a href="#planos" className="transition-colors hover:text-foreground">
+              Planos
+            </a>
+            <a href="#faq" className="transition-colors hover:text-foreground">
+              FAQ
+            </a>
           </nav>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
               <Link to="/auth">Entrar</Link>
             </Button>
             <Button variant="hero" size="sm" asChild>
-              <Link to="/auth" search={{ mode: "signup" }}>Começar grátis</Link>
+              <Link to="/auth" search={{ mode: "signup" }}>
+                Começar grátis
+              </Link>
             </Button>
           </div>
         </div>
@@ -103,15 +182,18 @@ function LandingPage() {
         <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-20 md:pt-28">
           <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
-              <Badge variant="outline" className="mb-6 gap-1.5 border-primary/30 bg-primary/10 py-1.5 text-primary">
+              <Badge
+                variant="outline"
+                className="mb-6 gap-1.5 border-primary/30 bg-primary/10 py-1.5 text-primary"
+              >
                 <Sparkles className="size-3.5" /> Inteligência artificial de vendas
               </Badge>
               <h1 className="text-4xl font-extrabold leading-[1.08] md:text-6xl">
                 Transforme conversas em <span className="text-gradient">vendas com IA</span>.
               </h1>
               <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-                Analise seus clientes, responda melhor, faça follow-ups e organize suas oportunidades em um único
-                lugar.
+                Analise seus clientes, responda melhor, faça follow-ups e organize suas
+                oportunidades em um único lugar.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Button variant="hero" size="xl" asChild>
@@ -142,7 +224,10 @@ function LandingPage() {
           />
           <div className="mt-12 grid gap-4 md:grid-cols-3">
             {problems.map((item) => (
-              <div key={item.title} className="surface-panel rounded-2xl p-6 transition-all hover:border-destructive/40">
+              <div
+                key={item.title}
+                className="surface-panel rounded-2xl p-6 transition-all hover:border-destructive/40"
+              >
                 <item.icon className="size-5 text-destructive" />
                 <h3 className="mt-4 font-semibold">{item.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{item.text}</p>
@@ -159,7 +244,9 @@ function LandingPage() {
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {steps.map((step) => (
               <div key={step.n} className="surface-panel relative overflow-hidden rounded-2xl p-7">
-                <span className="font-display text-5xl font-extrabold text-primary/15">{step.n}</span>
+                <span className="font-display text-5xl font-extrabold text-primary/15">
+                  {step.n}
+                </span>
                 <h3 className="mt-3 text-lg font-semibold">{step.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{step.text}</p>
               </div>
@@ -210,7 +297,9 @@ function LandingPage() {
                   )}
                 >
                   {highlighted && (
-                    <Badge className="absolute -top-3 left-8 bg-primary text-primary-foreground">Mais popular</Badge>
+                    <Badge className="absolute -top-3 left-8 bg-primary text-primary-foreground">
+                      Mais popular
+                    </Badge>
                   )}
                   <h3 className="font-display text-sm font-semibold uppercase tracking-widest text-muted-foreground">
                     {plan.name}
@@ -227,7 +316,12 @@ function LandingPage() {
                       </li>
                     ))}
                   </ul>
-                  <Button variant={highlighted ? "hero" : "subtle"} size="lg" className="mt-8 w-full" asChild>
+                  <Button
+                    variant={highlighted ? "hero" : "subtle"}
+                    size="lg"
+                    className="mt-8 w-full"
+                    asChild
+                  >
                     <Link to="/auth" search={{ mode: "signup" }}>
                       {key === "free" ? "Começar grátis" : "Assinar " + plan.name}
                     </Link>
@@ -246,7 +340,9 @@ function LandingPage() {
           <Accordion type="single" collapsible className="mt-10">
             {faqs.map((faq) => (
               <AccordionItem key={faq.q} value={faq.q} className="border-border">
-                <AccordionTrigger className="text-left font-medium hover:no-underline">{faq.q}</AccordionTrigger>
+                <AccordionTrigger className="text-left font-medium hover:no-underline">
+                  {faq.q}
+                </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">{faq.a}</AccordionContent>
               </AccordionItem>
             ))}
@@ -287,10 +383,20 @@ function LandingPage() {
   );
 }
 
-function SectionTitle({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
+function SectionTitle({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+}) {
   return (
     <div className="max-w-2xl">
-      <span className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-primary">{eyebrow}</span>
+      <span className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+        {eyebrow}
+      </span>
       <h2 className="mt-3 text-3xl font-extrabold md:text-4xl">{title}</h2>
       {subtitle && <p className="mt-4 text-muted-foreground">{subtitle}</p>}
     </div>
@@ -309,13 +415,17 @@ function DemoCard() {
 
       <div className="space-y-3 py-5">
         <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-elevated px-4 py-3 text-sm">
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Cliente</p>
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Cliente
+          </p>
           Oi, quanto custa esse serviço?
         </div>
         <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-primary/15 px-4 py-3 text-sm ring-1 ring-primary/25">
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-primary">VendAI</p>
-          Olá! 😊 O valor é R$ 149,90. Posso te explicar rapidamente como funciona e verificar a disponibilidade para
-          você.
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+            VendAI
+          </p>
+          Olá! 😊 O valor é R$ 149,90. Posso te explicar rapidamente como funciona e verificar a
+          disponibilidade para você.
         </div>
       </div>
 
@@ -325,7 +435,9 @@ function DemoCard() {
           <p className="mt-1 font-semibold text-hot">🔥 Lead quente</p>
         </div>
         <div className="rounded-xl bg-elevated p-3.5">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Intenção de compra</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            Intenção de compra
+          </p>
           <p className="mt-1 font-semibold text-primary">Alta · 87%</p>
         </div>
       </div>

@@ -89,7 +89,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "VendAI — Transforme conversas em vendas" },
       {
         property: "og:description",
-        content: "Analise clientes, responda melhor e organize suas oportunidades em um único lugar.",
+        content:
+          "Analise clientes, responda melhor e organize suas oportunidades em um único lugar.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -10,8 +10,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { LEAD_STAGES, TEMPERATURES } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useCreateRow, useDeleteRow, useRows, useUpdateRow, type Row } from "@/hooks/useTable";
@@ -21,9 +34,15 @@ export const Route = createFileRoute("/_authenticated/crm")({
   head: () => ({
     meta: [
       { title: "CRM de Leads — VendAI" },
-      { name: "description", content: "Organize seus leads por etapa e acompanhe cada oportunidade de venda." },
+      {
+        name: "description",
+        content: "Organize seus leads por etapa e acompanhe cada oportunidade de venda.",
+      },
       { property: "og:title", content: "CRM de Leads — VendAI" },
-      { property: "og:description", content: "Organize seus leads por etapa e acompanhe cada oportunidade de venda." },
+      {
+        property: "og:description",
+        content: "Organize seus leads por etapa e acompanhe cada oportunidade de venda.",
+      },
     ],
   }),
   component: Crm,
@@ -84,7 +103,9 @@ function Crm() {
       phone: form.phone || null,
       email: form.email || null,
       product_interest: form.product_interest || null,
-      potential_value: form.potential_value ? Number(form.potential_value.replace(",", ".")) || null : null,
+      potential_value: form.potential_value
+        ? Number(form.potential_value.replace(",", ".")) || null
+        : null,
       status: form.status,
       temperature: form.temperature,
       notes: form.notes || null,
@@ -114,7 +135,11 @@ function Crm() {
       }
     >
       <div className="mb-5 max-w-sm">
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar lead pelo nome..." />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar lead pelo nome..."
+        />
       </div>
 
       {isLoading ? (
@@ -156,7 +181,9 @@ function Crm() {
                       lead={lead}
                       onEdit={() => openEdit(lead)}
                       onDelete={() =>
-                        deleteLead.mutate(lead.id, { onSuccess: () => toast.success("Lead removido.") })
+                        deleteLead.mutate(lead.id, {
+                          onSuccess: () => toast.success("Lead removido."),
+                        })
                       }
                       onMove={(status) => updateLead.mutate({ id: lead.id, values: { status } })}
                     />
@@ -176,16 +203,25 @@ function Crm() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Nome</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>WhatsApp</Label>
-                <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                <Input
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label>E-mail</Label>
-                <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <Input
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -208,7 +244,10 @@ function Crm() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Etapa</Label>
-                <Select value={form.status} onValueChange={(value) => setForm({ ...form, status: value })}>
+                <Select
+                  value={form.status}
+                  onValueChange={(value) => setForm({ ...form, status: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -223,7 +262,10 @@ function Crm() {
               </div>
               <div className="space-y-2">
                 <Label>Temperatura</Label>
-                <Select value={form.temperature} onValueChange={(value) => setForm({ ...form, temperature: value })}>
+                <Select
+                  value={form.temperature}
+                  onValueChange={(value) => setForm({ ...form, temperature: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -239,7 +281,11 @@ function Crm() {
             </div>
             <div className="space-y-2">
               <Label>Anotações</Label>
-              <Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+              <Textarea
+                rows={3}
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              />
             </div>
           </div>
           <DialogFooter>
@@ -267,16 +313,23 @@ function LeadCard({
   onDelete: () => void;
   onMove: (status: string) => void;
 }) {
-  const Icon = lead.temperature === "quente" ? Flame : lead.temperature === "frio" ? Snowflake : Thermometer;
+  const Icon =
+    lead.temperature === "quente" ? Flame : lead.temperature === "frio" ? Snowflake : Thermometer;
   const color =
-    lead.temperature === "quente" ? "text-hot" : lead.temperature === "frio" ? "text-cold" : "text-warm";
+    lead.temperature === "quente"
+      ? "text-hot"
+      : lead.temperature === "frio"
+        ? "text-cold"
+        : "text-warm";
 
   return (
     <div className="rounded-xl border border-border bg-elevated/70 p-3 transition-colors hover:border-primary/35">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{lead.name}</p>
-          <p className="truncate text-xs text-muted-foreground">{lead.product_interest || "Sem interesse definido"}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {lead.product_interest || "Sem interesse definido"}
+          </p>
         </div>
         <Icon className={cn("size-4 shrink-0", color)} />
       </div>

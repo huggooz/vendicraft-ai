@@ -27,7 +27,9 @@ export async function buildBusinessContext(supabase: Client, userId: string): Pr
     lines.push(`- Público-alvo: ${business.target_audience || "não cadastrado"}`);
     lines.push(`- Faixa de preço: ${business.price_range || "não cadastrada"}`);
     lines.push(`- Necessidades dos clientes: ${business.customer_needs || "não cadastradas"}`);
-    lines.push(`- Tom de voz preferido: ${business.tone || profile?.default_tone || "profissional"}`);
+    lines.push(
+      `- Tom de voz preferido: ${business.tone || profile?.default_tone || "profissional"}`,
+    );
   } else {
     lines.push("- O usuário ainda não cadastrou o negócio. Não invente dados sobre ele.");
   }
@@ -37,7 +39,9 @@ export async function buildBusinessContext(supabase: Client, userId: string): Pr
     for (const product of products) {
       lines.push(
         `- ${product.name} | preço: ${
-          product.price != null ? `R$ ${Number(product.price).toFixed(2).replace(".", ",")}` : "não cadastrado"
+          product.price != null
+            ? `R$ ${Number(product.price).toFixed(2).replace(".", ",")}`
+            : "não cadastrado"
         } | descrição: ${product.description || "não cadastrada"} | benefícios: ${
           product.benefits || "não cadastrados"
         } | observações: ${product.commercial_notes || "—"}`,
@@ -71,8 +75,16 @@ const PLAN_LIMITS: Record<string, { analyses: number; generations: number }> = {
   anual: { analyses: 500, generations: 1000 },
 };
 
-export async function assertWithinLimit(supabase: Client, userId: string, kind: "analysis" | "generation") {
-  const { data: profile } = await supabase.from("profiles").select("plan").eq("id", userId).maybeSingle();
+export async function assertWithinLimit(
+  supabase: Client,
+  userId: string,
+  kind: "analysis" | "generation",
+) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", userId)
+    .maybeSingle();
   const plan = profile?.plan ?? "free";
   const limits = PLAN_LIMITS[plan] ?? PLAN_LIMITS["free"]!;
 
